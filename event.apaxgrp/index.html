@@ -59,34 +59,111 @@
     .apax-lightbox.tall img { max-height: none; width: min(95vw, 800px); }
     .apax-lightbox-close { position: fixed; top: 0.75rem; right: 1rem; z-index: 1001; background: none; border: 0;
       color: #fff; font-size: 2.5rem; line-height: 1; cursor: pointer; }
-    @media (prefers-reduced-motion: reduce) { .apax-gallery button { transition: none; } }
+    /* Video cards: zoom + muted preview on hover, click to watch large with sound */
+    .apax-video { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; border-radius: 0.5rem;
+      overflow: hidden; background: #111; cursor: pointer; transition: transform .3s ease, box-shadow .3s ease; }
+    .apax-video img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .apax-video .apax-preview { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+    .apax-video-play { position: absolute; left: 50%; top: 50%; width: 3.25rem; height: 3.25rem; margin: -1.625rem 0 0 -1.625rem;
+      border-radius: 50%; background: rgba(0,0,0,.65); transition: opacity .2s; }
+    .apax-video-play::after { content: ""; position: absolute; left: 55%; top: 50%; transform: translate(-50%, -50%);
+      border-style: solid; border-width: 0.6rem 0 0.6rem 1rem; border-color: transparent transparent transparent #fff; }
+    .apax-video.previewing .apax-video-play { opacity: 0; }
+    .apax-video:hover, .apax-video:focus-visible { transform: scale(1.08); box-shadow: 0 10px 25px rgba(0,0,0,.35); z-index: 3; outline: none; }
+    .apax-lightbox.video { align-items: center; }
+    .apax-lightbox-video { width: min(95vw, calc((100vh - 7rem) * 16 / 9), 1400px); aspect-ratio: 16 / 9; margin: auto; cursor: default; }
+    .apax-lightbox-video iframe { width: 100%; height: 100%; border: 0; border-radius: 0.25rem; }
+    @media (prefers-reduced-motion: reduce) { .apax-gallery button, .apax-video { transition: none; } }
   </style>
   <script>
-    // Click a gallery preview to view the full poster; close with the X, Esc or a click outside the image.
-    document.addEventListener('click', function (e) {
-      var btn = e.target.closest && e.target.closest('.apax-gallery [data-full]');
-      if (!btn) return;
-      var box = document.createElement('div');
-      box.className = 'apax-lightbox';
-      box.setAttribute('role', 'dialog');
-      box.setAttribute('aria-modal', 'true');
-      var img = new Image();
-      img.alt = btn.querySelector('img').alt;
-      img.onload = function () { if (img.naturalHeight / img.naturalWidth > 1.5) box.classList.add('tall'); };
-      img.src = btn.getAttribute('data-full');
-      var close = document.createElement('button');
-      close.className = 'apax-lightbox-close';
-      close.setAttribute('aria-label', 'Close');
-      close.innerHTML = '&times;';
-      box.appendChild(close);
-      box.appendChild(img);
-      function shut() { box.remove(); document.removeEventListener('keydown', onKey); btn.focus(); }
-      function onKey(ev) { if (ev.key === 'Escape') shut(); }
-      box.addEventListener('click', function (ev) { if (ev.target !== img) shut(); });
-      document.addEventListener('keydown', onKey);
-      document.body.appendChild(box);
-      close.focus();
-    });
+    // Posters and videos open in a large overlay; close with the X, Esc or a click outside.
+    // Videos also zoom and play a muted preview while hovered with a mouse.
+    (function () {
+      function openOverlay(content, extraClass, returnFocus) {
+        var box = document.createElement('div');
+        box.className = 'apax-lightbox' + (extraClass ? ' ' + extraClass : '');
+        box.setAttribute('role', 'dialog');
+        box.setAttribute('aria-modal', 'true');
+        var close = document.createElement('button');
+        close.className = 'apax-lightbox-close';
+        close.setAttribute('aria-label', 'Close');
+        close.innerHTML = '&times;';
+        box.appendChild(close);
+        box.appendChild(content);
+        function shut() { box.remove(); document.removeEventListener('keydown', onKey); if (returnFocus) returnFocus.focus(); }
+        function onKey(ev) { if (ev.key === 'Escape') shut(); }
+        box.addEventListener('click', function (ev) { if (!content.contains(ev.target)) shut(); });
+        document.addEventListener('keydown', onKey);
+        document.body.appendChild(box);
+        close.focus();
+        return box;
+      }
+
+      function ytSrc(id, preview) {
+        var q = preview
+          ? 'autoplay=1&mute=1&controls=0&playsinline=1&loop=1&playlist=' + id + '&rel=0'
+          : 'autoplay=1&playsinline=1&rel=0';
+        return 'https://www.youtube-nocookie.com/embed/' + id + '?' + q;
+      }
+
+      var hoverTimer = null;
+      function startPreview(card) {
+        clearTimeout(hoverTimer);
+        hoverTimer = setTimeout(function () {
+          if (card.querySelector('.apax-preview')) return;
+          var f = document.createElement('iframe');
+          f.className = 'apax-preview';
+          f.src = ytSrc(card.getAttribute('data-yt'), true);
+          f.allow = 'autoplay; encrypted-media';
+          f.tabIndex = -1;
+          f.setAttribute('aria-hidden', 'true');
+          card.appendChild(f);
+          card.classList.add('previewing');
+        }, 250);
+      }
+      function stopPreview(card) {
+        clearTimeout(hoverTimer);
+        var f = card.querySelector('.apax-preview');
+        if (f) f.remove();
+        card.classList.remove('previewing');
+      }
+
+      document.addEventListener('pointerover', function (e) {
+        if (e.pointerType !== 'mouse') return;
+        var card = e.target.closest && e.target.closest('.apax-video');
+        if (card && !card.contains(e.relatedTarget)) startPreview(card);
+      });
+      document.addEventListener('pointerout', function (e) {
+        var card = e.target.closest && e.target.closest('.apax-video');
+        if (card && !card.contains(e.relatedTarget)) stopPreview(card);
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest) return;
+        var card = e.target.closest('.apax-video');
+        if (card) {
+          stopPreview(card);
+          var wrap = document.createElement('div');
+          wrap.className = 'apax-lightbox-video';
+          var f = document.createElement('iframe');
+          f.src = ytSrc(card.getAttribute('data-yt'), false);
+          f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+          f.allowFullscreen = true;
+          f.title = card.getAttribute('aria-label');
+          wrap.appendChild(f);
+          openOverlay(wrap, 'video', card);
+          return;
+        }
+        var btn = e.target.closest('.apax-gallery [data-full]');
+        if (btn) {
+          var img = new Image();
+          img.alt = btn.querySelector('img').alt;
+          var box = openOverlay(img, '', btn);
+          img.onload = function () { if (img.naturalHeight / img.naturalWidth > 1.5) box.classList.add('tall'); };
+          img.src = btn.getAttribute('data-full');
+        }
+      });
+    })();
   </script>
 </head>
 
