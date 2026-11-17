@@ -45,7 +45,49 @@
       font-weight: 700; font-size: 0.875rem; letter-spacing: 0.2em; white-space: nowrap;
       cursor: pointer; transition: background-color .3s, color .3s; }
     .tte-btn:hover, .tte-btn:focus-visible { background: #000; color: #fff; }
+    /* Poster gallery (December section): 3 previews, enlarge slightly on hover, click to view full size */
+    .apax-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+    .apax-gallery button { display: block; padding: 0; border: 0; background: none; cursor: zoom-in;
+      border-radius: 0.5rem; overflow: hidden; transition: transform .3s ease, box-shadow .3s ease; }
+    .apax-gallery img { display: block; width: 100%; height: auto; aspect-ratio: 5 / 4; object-fit: cover; object-position: top; }
+    .apax-gallery button:hover, .apax-gallery button:focus-visible {
+      transform: scale(1.08); box-shadow: 0 10px 25px rgba(0,0,0,.35); position: relative; z-index: 2; outline: none; }
+    .apax-lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.88); overflow-y: auto;
+      display: flex; align-items: flex-start; justify-content: center; padding: 3.5rem 1rem 2rem; cursor: zoom-out; }
+    .apax-lightbox img { display: block; max-width: min(95vw, 1400px); max-height: calc(100vh - 5.5rem); width: auto; height: auto;
+      margin: auto; border-radius: 0.25rem; cursor: default; }
+    .apax-lightbox.tall img { max-height: none; width: min(95vw, 800px); }
+    .apax-lightbox-close { position: fixed; top: 0.75rem; right: 1rem; z-index: 1001; background: none; border: 0;
+      color: #fff; font-size: 2.5rem; line-height: 1; cursor: pointer; }
+    @media (prefers-reduced-motion: reduce) { .apax-gallery button { transition: none; } }
   </style>
+  <script>
+    // Click a gallery preview to view the full poster; close with the X, Esc or a click outside the image.
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('.apax-gallery [data-full]');
+      if (!btn) return;
+      var box = document.createElement('div');
+      box.className = 'apax-lightbox';
+      box.setAttribute('role', 'dialog');
+      box.setAttribute('aria-modal', 'true');
+      var img = new Image();
+      img.alt = btn.querySelector('img').alt;
+      img.onload = function () { if (img.naturalHeight / img.naturalWidth > 1.5) box.classList.add('tall'); };
+      img.src = btn.getAttribute('data-full');
+      var close = document.createElement('button');
+      close.className = 'apax-lightbox-close';
+      close.setAttribute('aria-label', 'Close');
+      close.innerHTML = '&times;';
+      box.appendChild(close);
+      box.appendChild(img);
+      function shut() { box.remove(); document.removeEventListener('keydown', onKey); btn.focus(); }
+      function onKey(ev) { if (ev.key === 'Escape') shut(); }
+      box.addEventListener('click', function (ev) { if (ev.target !== img) shut(); });
+      document.addEventListener('keydown', onKey);
+      document.body.appendChild(box);
+      close.focus();
+    });
+  </script>
 </head>
 
   <body>
