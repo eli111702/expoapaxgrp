@@ -6,20 +6,20 @@
     <link rel="icon" type="image/png" href="/assets/logo_black.png" />
     <link rel="icon" type="image/png" href="/assets/logo_black.png" media="(prefers-color-scheme: light)" />
     <link rel="icon" type="image/png" href="/assets/logo_white.png" media="(prefers-color-scheme: dark)" />
-    <title>XGRIDS APAX</title>
+    <title>APAX XGRIDS</title>
     <meta name="description" content="Event @ APAX">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <meta name="author" content="XGRIDS APAX" />
+    <meta name="author" content="APAX XGRIDS" />
 
     
     
     <meta property="og:type" content="website" />
 
     <meta name="twitter:card" content="summary" />
-    <meta property="og:title" content="XGRIDS APAX">
-  <meta name="twitter:title" content="XGRIDS APAX">
+    <meta property="og:title" content="APAX XGRIDS">
+  <meta name="twitter:title" content="APAX XGRIDS">
   <meta property="og:description" content="Event @ APAX">
   <meta name="twitter:description" content="Event @ APAX">
   <script>
@@ -37,14 +37,19 @@
     @media (min-width: 768px) {
       .dec-title { font-size: min(110px, calc((100vw - 16rem) / 5.6)); }
     }
-    @media (min-width: 1024px) {
-      .dec-title { font-size: min(150px, calc((100vw - 16rem - 14rem) / 5.6)); }
+    @media (min-width: 1280px) {
+      .dec-title { font-size: min(150px, calc((100vw - 16rem - 27rem) / 5.6)); }
     }
     /* "TALK TO EXPERT" boxed button beside the DEC 2026 heading */
     .tte-btn { border: 2px solid #000; color: #000; background: transparent; padding: 0.6rem 1.5rem;
       font-weight: 700; font-size: 0.875rem; letter-spacing: 0.2em; white-space: nowrap;
       cursor: pointer; transition: background-color .3s, color .3s; }
     .tte-btn:hover, .tte-btn:focus-visible { background: #000; color: #fff; }
+    /* Expert phone number beside the TALK TO EXPERT button (wraps under it on narrow screens) */
+    .tte-group { display: flex; flex-wrap: wrap; align-items: center; column-gap: 1.25rem; row-gap: 0.75rem; }
+    .tte-phone { display: inline-flex; align-items: center; gap: 0.5rem; color: #000; font-weight: 700;
+      font-size: 0.95rem; letter-spacing: 0.05em; white-space: nowrap; text-decoration: none; }
+    .tte-phone:hover, .tte-phone:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
     /* Poster gallery (December section): 3 previews, enlarge slightly on hover, click to view full size */
     .apax-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
     .apax-gallery button { display: block; padding: 0; border: 0; background: none; cursor: zoom-in;
@@ -170,7 +175,7 @@
   <body>
     <div id="root"></div>
 
-    <!-- XGRIDS APAX AI assistant (ElevenLabs Agents). Agent settings live in the ElevenLabs dashboard. -->
+    <!-- APAX XGRIDS AI assistant (ElevenLabs Agents). Agent settings live in the ElevenLabs dashboard. -->
     <elevenlabs-convai agent-id="agent_4801m7kyf9hzf1crt59x7qrdedbd"
       text-contents='{"main_label":"OBI","start_call":"Talk to OBI","start_chat":"Chat"}'></elevenlabs-convai>
     <script src="https://unpkg.com/@elevenlabs/convai-widget-embed@0.23.0" async type="text/javascript"></script>
