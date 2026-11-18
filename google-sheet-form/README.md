@@ -21,7 +21,7 @@ For each one, an email is also sent to `beapax2022@gmail.com`.
    - Click **Allow**.
 6. Copy the **Web app URL**. It looks like `https://script.google.com/macros/s/…/exec`.
    Opening it in a browser should show `"Talk to Expert form endpoint is running."`.
-7. Put that URL into the website. It's the `TALK_TO_EXPERT_FORM_URL` line in `event.apaxgrp/index.html`.
+7. Put that URL into the website. It's the `TALK_TO_EXPERT_FORM_URL` line in `htpn.apaxgrp.com/index.html`.
 
 ## Seeing responses
 
