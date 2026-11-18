@@ -64,7 +64,29 @@
     .expert-call small { display: block; font-size: 0.6rem; letter-spacing: .04em; opacity: .7; }
     .expert-call strong { display: block; font-size: 0.78rem; letter-spacing: .03em; }
     .expert-call:hover, .expert-call:focus-visible { box-shadow: 0 8px 26px rgba(0,0,0,.28); outline: none; }
-    @media (max-width: 767px) { .apax-home-title { bottom: 15.5rem !important; } }
+    /* OBI starts as a single round icon (all screens); tapping it opens the normal OBI card */
+    body:not(.obi-open) elevenlabs-convai { display: none; }
+    .obi-launcher { position: fixed; right: 20px; bottom: 20px; z-index: 999; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px; width: 60px; height: 60px; padding: 0; border: 0;
+      border-radius: 50%; background: #fff; box-shadow: 0 6px 18px rgba(0,0,0,.22); cursor: pointer;
+      font: 700 0.6rem/1 "Space Grotesk", system-ui, sans-serif; letter-spacing: .08em; color: #000; transition: transform .2s; }
+    .obi-launcher:hover { transform: scale(1.06); }
+    .obi-orb { width: 30px; height: 30px; border-radius: 50%;
+      background: conic-gradient(from 200deg, #2792dc, #9ce6e6, #e9fbff, #2792dc, #0b4f8a, #9ce6e6, #2792dc); }
+    .obi-close { display: none; font-size: 1.9rem; line-height: 1; font-weight: 400; }
+    body.obi-open .obi-launcher { width: 40px; height: 40px; right: 32px; bottom: 146px; }
+    body.obi-open .obi-launcher .obi-orb, body.obi-open .obi-launcher .obi-launcher-label { display: none; }
+    body.obi-open .obi-launcher .obi-close { display: block; }
+    body.obi-open .expert-call { display: none; }
+    /* Contact number sits just above the OBI icon */
+    .expert-call { right: 20px; bottom: 92px; }
+    @media (max-width: 767px) {
+      .expert-call { right: 24px; width: 52px; height: 52px; padding: 0; border-radius: 50%; justify-content: center; }
+      .expert-call span { display: none; }
+      .expert-call svg { width: 30px; height: 30px; padding: 0.4rem; }
+      /* Extra space at the bottom of the form and December section so the last item can scroll clear of the icons */
+      .apax-scroll-pad { padding-bottom: 10rem !important; }
+    }
     /* Keep the big home title clear of the OBI bubble and phone number on tablets/laptops */
     @media (min-width: 768px) { .apax-home-title img { max-width: calc(100vw - 23.5rem) !important; } }
     @media (prefers-reduced-motion: reduce) { .tte-btn::before { animation: none; opacity: 0; } }
@@ -198,6 +220,20 @@
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
       <span><small>Contact our expert</small><strong>+60 13-262 2400</strong></span>
     </a>
+
+    <!-- Phones only: round OBI icon that opens/closes the OBI card -->
+    <button class="obi-launcher" type="button" aria-label="Open OBI assistant" aria-expanded="false">
+      <span class="obi-orb" aria-hidden="true"></span>
+      <span class="obi-launcher-label">OBI</span>
+      <span class="obi-close" aria-hidden="true">&times;</span>
+    </button>
+    <script>
+      document.querySelector('.obi-launcher').addEventListener('click', function () {
+        var open = document.body.classList.toggle('obi-open');
+        this.setAttribute('aria-expanded', open ? 'true' : 'false');
+        this.setAttribute('aria-label', open ? 'Close OBI assistant' : 'Open OBI assistant');
+      });
+    </script>
 
     <!-- APAX XGRIDS AI assistant (ElevenLabs Agents). Agent settings live in the ElevenLabs dashboard. -->
     <elevenlabs-convai agent-id="agent_4801m7kyf9hzf1crt59x7qrdedbd"
