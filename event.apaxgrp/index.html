@@ -37,19 +37,37 @@
     @media (min-width: 768px) {
       .dec-title { font-size: min(110px, calc((100vw - 16rem) / 5.6)); }
     }
-    @media (min-width: 1280px) {
-      .dec-title { font-size: min(150px, calc((100vw - 16rem - 27rem) / 5.6)); }
+    @media (min-width: 1024px) {
+      .dec-title { font-size: min(150px, calc((100vw - 16rem - 14rem) / 5.6)); }
     }
     /* "TALK TO EXPERT" boxed button beside the DEC 2026 heading */
     .tte-btn { border: 2px solid #000; color: #000; background: transparent; padding: 0.6rem 1.5rem;
       font-weight: 700; font-size: 0.875rem; letter-spacing: 0.2em; white-space: nowrap;
       cursor: pointer; transition: background-color .3s, color .3s; }
     .tte-btn:hover, .tte-btn:focus-visible { background: #000; color: #fff; }
-    /* Expert phone number beside the TALK TO EXPERT button (wraps under it on narrow screens) */
-    .tte-group { display: flex; flex-wrap: wrap; align-items: center; column-gap: 1.25rem; row-gap: 0.75rem; }
-    .tte-phone { display: inline-flex; align-items: center; gap: 0.5rem; color: #000; font-weight: 700;
-      font-size: 0.95rem; letter-spacing: 0.05em; white-space: nowrap; text-decoration: none; }
-    .tte-phone:hover, .tte-phone:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
+    /* Animated light that runs around the TALK TO EXPERT border */
+    @property --tte-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+    .tte-btn { position: relative; }
+    .tte-btn::before { content: ""; position: absolute; inset: -2px; padding: 3px; pointer-events: none;
+      background: conic-gradient(from var(--tte-angle), transparent 0deg 250deg, rgba(255,255,255,.35) 300deg, #fff 345deg, transparent 360deg);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+      animation: tte-run 2.5s linear infinite; }
+    .tte-btn:hover::before { opacity: 0; }
+    @keyframes tte-run { to { --tte-angle: 360deg; } }
+
+    /* Expert phone number, floating just above the OBI chat bubble */
+    .expert-call { position: fixed; right: 32px; bottom: 146px; z-index: 999; display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.3rem 0.65rem 0.3rem 0.35rem; border-radius: 999px; background: #fff; color: #000; text-decoration: none;
+      box-shadow: 0 4px 14px rgba(0,0,0,.16); font-family: "Space Grotesk", system-ui, sans-serif; line-height: 1.15; }
+    .expert-call svg { flex: none; width: 1.3rem; height: 1.3rem; padding: 0.28rem; border-radius: 50%; background: #000; color: #fff; }
+    .expert-call small { display: block; font-size: 0.6rem; letter-spacing: .04em; opacity: .7; }
+    .expert-call strong { display: block; font-size: 0.78rem; letter-spacing: .03em; }
+    .expert-call:hover, .expert-call:focus-visible { box-shadow: 0 8px 26px rgba(0,0,0,.28); outline: none; }
+    @media (max-width: 767px) { .apax-home-title { bottom: 15.5rem !important; } }
+    /* Keep the big home title clear of the OBI bubble and phone number on tablets/laptops */
+    @media (min-width: 768px) { .apax-home-title img { max-width: calc(100vw - 23.5rem) !important; } }
+    @media (prefers-reduced-motion: reduce) { .tte-btn::before { animation: none; opacity: 0; } }
     /* Poster gallery (December section): 3 previews, enlarge slightly on hover, click to view full size */
     .apax-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
     .apax-gallery button { display: block; padding: 0; border: 0; background: none; cursor: zoom-in;
@@ -174,6 +192,12 @@
 
   <body>
     <div id="root"></div>
+
+    <!-- Expert phone number (sits just above the OBI bubble) -->
+    <a class="expert-call" href="tel:+60132622400" aria-label="Call our expert at +60 13-262 2400">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+      <span><small>Call our expert</small><strong>+60 13-262 2400</strong></span>
+    </a>
 
     <!-- APAX XGRIDS AI assistant (ElevenLabs Agents). Agent settings live in the ElevenLabs dashboard. -->
     <elevenlabs-convai agent-id="agent_4801m7kyf9hzf1crt59x7qrdedbd"
