@@ -235,10 +235,33 @@
       });
     </script>
 
-    <!-- APAX XGRIDS AI assistant (ElevenLabs Agents). Agent settings live in the ElevenLabs dashboard.
-         default-expanded/always-expanded="false" override the dashboard so the OBI card (Talk/Chat) shows first. -->
-    <elevenlabs-convai agent-id="agent_4801m7kyf9hzf1crt59x7qrdedbd" default-expanded="false" always-expanded="false"
+    <!-- APAX XGRIDS AI assistant (ElevenLabs Agents). Agent settings live in the ElevenLabs dashboard. -->
+    <elevenlabs-convai agent-id="agent_4801m7kyf9hzf1crt59x7qrdedbd"
       text-contents='{"main_label":"OBI","start_call":"Talk to OBI","start_chat":"Chat"}'></elevenlabs-convai>
+    <script>
+      // Show OBI's own language picker (flag button) with English, Bahasa Melayu and 中文.
+      // The agent's published ElevenLabs settings currently list no picker languages, so add them to the
+      // widget settings as they load. Choosing BM/中文 needs "Language" overrides allowed in the agent's Security settings.
+      (function () {
+        var LANGS = ['en', 'ms', 'zh'];
+        var realFetch = window.fetch;
+        window.fetch = function (input, init) {
+          var url = typeof input === 'string' ? input : (input && input.url) || '';
+          var p = realFetch.apply(this, arguments);
+          if (!/\/v1\/convai\/agents\/[^/?]+\/widget/.test(url)) return p;
+          return p.then(function (res) {
+            if (!res.ok) return res;
+            return res.clone().json().then(function (data) {
+              var cfg = data && data.widget_config;
+              if (cfg && !(cfg.supported_language_overrides && cfg.supported_language_overrides.length)) {
+                cfg.supported_language_overrides = LANGS;
+              }
+              return new Response(JSON.stringify(data), { status: res.status, statusText: res.statusText, headers: res.headers });
+            }).catch(function () { return res; });
+          });
+        };
+      })();
+    </script>
     <script src="https://unpkg.com/@elevenlabs/convai-widget-embed@0.23.0" async type="text/javascript"></script>
   </body>
 </html>
