@@ -221,22 +221,53 @@
       <span><small>Contact our expert</small><strong>+60 13-262 2400</strong></span>
     </a>
 
-    <!-- Phones only: round OBI icon that opens/closes the OBI card -->
+    <!-- Round OBI icon: opens the OBI assistant in its expanded view (big orb, call button, message box) -->
     <button class="obi-launcher" type="button" aria-label="Open OBI assistant" aria-expanded="false">
       <span class="obi-orb" aria-hidden="true"></span>
       <span class="obi-launcher-label">OBI</span>
       <span class="obi-close" aria-hidden="true">&times;</span>
     </button>
     <script>
-      document.querySelector('.obi-launcher').addEventListener('click', function () {
-        var open = document.body.classList.toggle('obi-open');
-        this.setAttribute('aria-expanded', open ? 'true' : 'false');
-        this.setAttribute('aria-label', open ? 'Close OBI assistant' : 'Open OBI assistant');
-      });
+      (function () {
+        var launcher = document.querySelector('.obi-launcher');
+        var seenExpanded = false;
+        function widget() { return document.querySelector('elevenlabs-convai'); }
+        // Re-create the widget so it starts fresh in its expanded view (default-expanded only applies when it is created).
+        function remount() { var w = widget(); if (w) w.replaceWith(w.cloneNode(false)); }
+        function labels() {
+          var w = widget();
+          if (!w || !w.shadowRoot) return [];
+          return [].slice.call(w.shadowRoot.querySelectorAll('button'))
+            .filter(function (b) { return b.getBoundingClientRect().width > 0; })
+            .map(function (b) { return b.getAttribute('aria-label') || ''; });
+        }
+        function setOpen(open) {
+          document.body.classList.toggle('obi-open', open);
+          launcher.setAttribute('aria-expanded', open ? 'true' : 'false');
+          launcher.setAttribute('aria-label', open ? 'Close OBI assistant' : 'Open OBI assistant');
+          seenExpanded = false;
+        }
+        launcher.addEventListener('click', function () {
+          var open = !document.body.classList.contains('obi-open');
+          remount();
+          setOpen(open);
+        });
+        // When the visitor collapses the expanded view with the widget's own button, go back to the round icon,
+        // unless a voice call is still running (then the small call card stays so the call is not cut off).
+        setInterval(function () {
+          if (!document.body.classList.contains('obi-open')) return;
+          var l = labels();
+          if (l.indexOf('Collapse') !== -1) { seenExpanded = true; return; }
+          if (seenExpanded && l.length && !l.some(function (x) { return /end|mute/i.test(x); })) {
+            setOpen(false);
+            remount();
+          }
+        }, 400);
+      })();
     </script>
 
     <!-- APAX XGRIDS AI assistant (ElevenLabs Agents). Agent settings live in the ElevenLabs dashboard. -->
-    <elevenlabs-convai agent-id="agent_4801m7kyf9hzf1crt59x7qrdedbd"
+    <elevenlabs-convai agent-id="agent_4801m7kyf9hzf1crt59x7qrdedbd" default-expanded="true"
       text-contents='{"main_label":"OBI","start_call":"Talk to OBI","start_chat":"Chat"}'></elevenlabs-convai>
     <script src="https://unpkg.com/@elevenlabs/convai-widget-embed@0.23.0" async type="text/javascript"></script>
   </body>
