@@ -78,6 +78,13 @@
     body.obi-open .obi-launcher .obi-orb, body.obi-open .obi-launcher .obi-launcher-label { display: none; }
     body.obi-open .obi-launcher .obi-close { display: block; }
     body.obi-open .expert-call { display: none; }
+    /* EN / BM / 中文 language buttons, shown above the OBI card (left of its x) */
+    .obi-lang { display: none; position: fixed; right: 84px; bottom: 150px; z-index: 999; gap: 4px; padding: 4px;
+      border-radius: 999px; background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+    body.obi-open .obi-lang { display: flex; }
+    .obi-lang button { border: 0; background: transparent; color: #000; cursor: pointer; border-radius: 999px;
+      padding: 6px 12px; font: 700 0.8rem/1 "Space Grotesk", system-ui, sans-serif; letter-spacing: .04em; }
+    .obi-lang button[aria-pressed="true"] { background: #000; color: #fff; }
     /* Contact number sits just above the OBI icon */
     .expert-call { right: 20px; bottom: 92px; }
     @media (max-width: 767px) {
@@ -233,6 +240,31 @@
         this.setAttribute('aria-expanded', open ? 'true' : 'false');
         this.setAttribute('aria-label', open ? 'Close OBI assistant' : 'Open OBI assistant');
       });
+    </script>
+
+    <!-- Language choice for OBI. Sets the widget's override-language (needs "Language" overrides allowed in the
+         ElevenLabs agent's Security settings). The choice is remembered on this device. -->
+    <div class="obi-lang" role="group" aria-label="OBI language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="ms" aria-pressed="false">BM</button>
+      <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+    </div>
+    <script>
+      (function () {
+        var KEY = 'obi-language';
+        var buttons = [].slice.call(document.querySelectorAll('.obi-lang button'));
+        function apply(lang) {
+          var w = document.querySelector('elevenlabs-convai');
+          if (w) { if (lang === 'en') w.removeAttribute('override-language'); else w.setAttribute('override-language', lang); }
+          buttons.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false'); });
+          try { localStorage.setItem(KEY, lang); } catch (e) {}
+        }
+        buttons.forEach(function (b) { b.addEventListener('click', function () { apply(b.getAttribute('data-lang')); }); });
+        var saved = 'en';
+        try { saved = localStorage.getItem(KEY) || 'en'; } catch (e) {}
+        // The widget element is defined further down the page, so apply once it exists.
+        document.addEventListener('DOMContentLoaded', function () { apply(saved); });
+      })();
     </script>
 
     <!-- APAX XGRIDS AI assistant (ElevenLabs Agents). Agent settings live in the ElevenLabs dashboard. -->
