@@ -235,8 +235,9 @@
       });
     </script>
 
-    <!-- APAX XGRIDS AI assistant (ElevenLabs Agents). Agent settings live in the ElevenLabs dashboard. -->
-    <elevenlabs-convai agent-id="agent_4801m7kyf9hzf1crt59x7qrdedbd"
+    <!-- APAX XGRIDS AI assistant (ElevenLabs Agents). Agent settings live in the ElevenLabs dashboard.
+         default-expanded/always-expanded="false" override the dashboard so the OBI card (Talk/Chat) shows first. -->
+    <elevenlabs-convai agent-id="agent_4801m7kyf9hzf1crt59x7qrdedbd" default-expanded="false" always-expanded="false"
       text-contents='{"main_label":"OBI","start_call":"Talk to OBI","start_chat":"Chat"}'></elevenlabs-convai>
     <script src="https://unpkg.com/@elevenlabs/convai-widget-embed@0.23.0" async type="text/javascript"></script>
   </body>
