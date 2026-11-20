@@ -78,6 +78,10 @@
     body.obi-open .obi-launcher .obi-orb, body.obi-open .obi-launcher .obi-launcher-label { display: none; }
     body.obi-open .obi-launcher .obi-close { display: block; }
     body.obi-open .expert-call { display: none; }
+    /* Talk to Expert form: centred when it fits, but scrollable from its very top when the screen is shorter
+       (plain flex centring cuts off the top of content taller than the screen). */
+    .apax-scroll-pad.items-center { align-items: flex-start; }
+    .apax-scroll-pad.items-center > * { margin-top: auto; margin-bottom: auto; }
     /* Contact number sits just above the OBI icon */
     .expert-call { right: 20px; bottom: 92px; }
     @media (max-width: 767px) {
