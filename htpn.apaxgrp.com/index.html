@@ -87,19 +87,26 @@
     .apax-vtrack { display: flex; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 6px; scroll-behavior: smooth;
       padding: 14px 6px 6px; margin: -14px -6px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     .apax-vtrack::-webkit-scrollbar { display: none; }
-    .apax-vcard { flex: 0 0 calc(50% - 0.5rem); scroll-snap-align: start; }
+    .apax-vpage { flex: 0 0 100%; scroll-snap-align: start; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-content: start; }
+    @media (max-width: 767px) { .apax-vpage { gap: 0.75rem; } }
+    .apax-vcard { min-width: 0; }
+    .apax-vdots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+    .apax-vdots button { width: 9px; height: 9px; padding: 0; border: 0; border-radius: 50%; background: rgba(0,0,0,.25); cursor: pointer; transition: width .2s, background .2s; }
+    .apax-vdots button.on { width: 24px; border-radius: 5px; background: #000; }
     .apax-vthumb { position: relative; aspect-ratio: 16 / 9; }
-    @media (max-width: 380px) { .apax-vtitle { font-size: 0.82rem !important; letter-spacing: 0 !important; } }
     .apax-vtitle { margin: 0.6rem 0 0; color: #000; font: 600 0.95rem/1.25 "Space Grotesk", system-ui, sans-serif; letter-spacing: .02em;
       display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: 2.5em; }
-    .apax-vnav { position: absolute; z-index: 5; top: calc(14px + var(--thumbh, 150px) / 2 - 20px); width: 40px; height: 40px;
+    .apax-vnav { position: absolute; z-index: 5; top: calc(50% - 20px - 12px); width: 40px; height: 40px;
       border: 0; border-radius: 50%; background: #fff; color: #000; box-shadow: 0 4px 14px rgba(0,0,0,.25); cursor: pointer;
       font: 400 1.7rem/40px system-ui, sans-serif; text-align: center; padding: 0; transition: opacity .2s; }
     .apax-vnav.prev { left: -14px; }
     .apax-vnav.next { right: -14px; }
     .apax-vnav[disabled] { opacity: 0; pointer-events: none; }
-    @media (max-width: 767px) { .apax-vcard { flex-basis: 78%; } }
     @media (hover: none) { .apax-vnav { display: none; } }
+    @media (max-width: 767px) {
+      .apax-vtitle { font-size: 0.8rem; letter-spacing: 0; margin-top: 0.4rem; -webkit-line-clamp: 3; line-clamp: 3; min-height: 0; }
+      .apax-vcard .apax-video-play { width: 2.4rem; height: 2.4rem; margin: -1.2rem 0 0 -1.2rem; }
+    }
     /* Contact number sits just above the OBI icon */
     .expert-call { right: 20px; bottom: 92px; }
     @media (max-width: 767px) {
@@ -258,26 +265,34 @@
       function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
       function build(box) {
         box.innerHTML = '<button type="button" class="apax-vnav prev" aria-label="Previous videos">&#8249;</button>' +
-          '<div class="apax-vtrack"></div><button type="button" class="apax-vnav next" aria-label="Next videos">&#8250;</button>';
+          '<div class="apax-vtrack"></div><button type="button" class="apax-vnav next" aria-label="Next videos">&#8250;</button><div class="apax-vdots"></div>';
         var track = box.querySelector('.apax-vtrack');
-        (window.APAX_VIDEOS || []).forEach(function (v) {
+        var page, dots = box.querySelector('.apax-vdots');
+        (window.APAX_VIDEOS || []).forEach(function (v, i) {
+          if (i % 4 === 0) {   // 4 videos per page: 2 on top, 2 below
+            page = document.createElement('div'); page.className = 'apax-vpage'; track.appendChild(page);
+            var d = document.createElement('button'); d.type = 'button'; d.setAttribute('aria-label', 'Videos page ' + (i / 4 + 1));
+            d.addEventListener('click', (function (p) { return function () { track.scrollTo({ left: p.offsetLeft - track.offsetLeft - 6 }); }; })(page));
+            dots.appendChild(d);
+          }
           var id = ytId(v[0]), title = esc(v[1] || '');
           var card = document.createElement('div');
           card.className = 'apax-vcard';
           card.innerHTML = '<div class="apax-vthumb"><button type="button" class="apax-video" data-yt="' + id + '" aria-label="Play video: ' + title + '">' +
             '<img src="https://i.ytimg.com/vi/' + id + '/hqdefault.jpg" alt="" loading="lazy"><span class="apax-video-play" aria-hidden="true"></span></button></div>' +
             '<p class="apax-vtitle" title="' + title + '">' + title + '</p>';
-          track.appendChild(card);
+          page.appendChild(card);
         });
         var prev = box.querySelector('.prev'), next = box.querySelector('.next');
         function update() {
-          var th = track.querySelector('.apax-vthumb');
-          if (th) box.style.setProperty('--thumbh', th.offsetHeight + 'px');
+          var n = Math.round(track.scrollLeft / (track.clientWidth || 1));
+          [].forEach.call(dots.children, function (d, k) { d.classList.toggle('on', k === n); });
+          dots.style.display = dots.children.length > 1 ? '' : 'none';
           prev.disabled = track.scrollLeft < 5;
           next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
         }
-        prev.addEventListener('click', function () { track.scrollBy({ left: -track.clientWidth * 0.9 }); });
-        next.addEventListener('click', function () { track.scrollBy({ left: track.clientWidth * 0.9 }); });
+        prev.addEventListener('click', function () { track.scrollBy({ left: -track.clientWidth }); });
+        next.addEventListener('click', function () { track.scrollBy({ left: track.clientWidth }); });
         track.addEventListener('scroll', update, { passive: true });
         window.addEventListener('resize', update);
         setTimeout(update, 50); setTimeout(update, 800);
