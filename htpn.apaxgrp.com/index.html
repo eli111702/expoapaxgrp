@@ -82,6 +82,22 @@
        (plain flex centring cuts off the top of content taller than the screen). */
     .apax-scroll-pad.items-center { align-items: flex-start; }
     .apax-scroll-pad.items-center > * { margin-top: auto; margin-bottom: auto; }
+    /* December videos: swipe row of video cards with titles (list is in APAX_VIDEOS below) */
+    .apax-videos { position: relative; }
+    .apax-vtrack { display: flex; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 6px; scroll-behavior: smooth;
+      padding: 14px 6px 6px; margin: -14px -6px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .apax-vtrack::-webkit-scrollbar { display: none; }
+    .apax-vcard { flex: 0 0 calc(50% - 0.5rem); scroll-snap-align: start; }
+    .apax-vthumb { position: relative; aspect-ratio: 16 / 9; }
+    .apax-vtitle { margin: 0.6rem 0 0; color: #000; font: 600 0.95rem/1.25 "Space Grotesk", system-ui, sans-serif; letter-spacing: .02em; }
+    .apax-vnav { position: absolute; z-index: 5; top: calc(14px + var(--thumbh, 150px) / 2 - 20px); width: 40px; height: 40px;
+      border: 0; border-radius: 50%; background: #fff; color: #000; box-shadow: 0 4px 14px rgba(0,0,0,.25); cursor: pointer;
+      font: 400 1.7rem/40px system-ui, sans-serif; text-align: center; padding: 0; transition: opacity .2s; }
+    .apax-vnav.prev { left: -14px; }
+    .apax-vnav.next { right: -14px; }
+    .apax-vnav[disabled] { opacity: 0; pointer-events: none; }
+    @media (max-width: 767px) { .apax-vcard { flex-basis: 78%; } }
+    @media (hover: none) { .apax-vnav { display: none; } }
     /* Contact number sits just above the OBI icon */
     .expert-call { right: 20px; bottom: 92px; }
     @media (max-width: 767px) {
@@ -212,6 +228,54 @@
           img.src = btn.getAttribute('data-full');
         }
       });
+    })();
+  </script>
+  <script>
+    /* ===================== DECEMBER VIDEOS =====================
+       One line per video, in the order they appear: ['YouTube link or ID', 'Title'],
+       To add a video, copy a line and change the link and title.            */
+    window.APAX_VIDEOS = [
+      ['https://youtu.be/F1nsaN7eoRE', 'Filming'],
+      ['https://youtu.be/diUv7P2_l-E', 'AEC'],
+      ['https://youtu.be/GZ53c3VInAE', 'Lixel L3'],
+      ['https://youtu.be/aA2UoYir_Bw', 'Geo Spatial'],
+      ['https://youtu.be/zU1Brp8oJh0', 'Summit 1.0'],
+    ];
+    /* =========================================================== */
+
+    // Builds the swipe row of video cards inside the December section (hover preview / click-to-play use .apax-video).
+    (function () {
+      function ytId(v) { var m = String(v).match(/(?:youtu\.be\/|[?&]v=|shorts\/|embed\/)([\w-]{11})/); return m ? m[1] : String(v).trim(); }
+      function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+      function build(box) {
+        box.innerHTML = '<button type="button" class="apax-vnav prev" aria-label="Previous videos">&#8249;</button>' +
+          '<div class="apax-vtrack"></div><button type="button" class="apax-vnav next" aria-label="Next videos">&#8250;</button>';
+        var track = box.querySelector('.apax-vtrack');
+        (window.APAX_VIDEOS || []).forEach(function (v) {
+          var id = ytId(v[0]), title = esc(v[1] || '');
+          var card = document.createElement('div');
+          card.className = 'apax-vcard';
+          card.innerHTML = '<div class="apax-vthumb"><button type="button" class="apax-video" data-yt="' + id + '" aria-label="Play video: ' + title + '">' +
+            '<img src="https://i.ytimg.com/vi/' + id + '/hqdefault.jpg" alt="" loading="lazy"><span class="apax-video-play" aria-hidden="true"></span></button></div>' +
+            '<p class="apax-vtitle">' + title + '</p>';
+          track.appendChild(card);
+        });
+        var prev = box.querySelector('.prev'), next = box.querySelector('.next');
+        function update() {
+          var th = track.querySelector('.apax-vthumb');
+          if (th) box.style.setProperty('--thumbh', th.offsetHeight + 'px');
+          prev.disabled = track.scrollLeft < 5;
+          next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 5;
+        }
+        prev.addEventListener('click', function () { track.scrollBy({ left: -track.clientWidth * 0.9 }); });
+        next.addEventListener('click', function () { track.scrollBy({ left: track.clientWidth * 0.9 }); });
+        track.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        setTimeout(update, 50); setTimeout(update, 800);
+      }
+      function fill() { document.querySelectorAll('.apax-videos').forEach(function (b) { if (!b.querySelector('.apax-vtrack')) build(b); }); }
+      new MutationObserver(fill).observe(document.documentElement, { childList: true, subtree: true });
+      document.addEventListener('DOMContentLoaded', fill);
     })();
   </script>
 </head>
