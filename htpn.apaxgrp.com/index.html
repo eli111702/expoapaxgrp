@@ -89,7 +89,9 @@
     .apax-vtrack::-webkit-scrollbar { display: none; }
     .apax-vcard { flex: 0 0 calc(50% - 0.5rem); scroll-snap-align: start; }
     .apax-vthumb { position: relative; aspect-ratio: 16 / 9; }
-    .apax-vtitle { margin: 0.6rem 0 0; color: #000; font: 600 0.95rem/1.25 "Space Grotesk", system-ui, sans-serif; letter-spacing: .02em; }
+    @media (max-width: 380px) { .apax-vtitle { font-size: 0.82rem !important; letter-spacing: 0 !important; } }
+    .apax-vtitle { margin: 0.6rem 0 0; color: #000; font: 600 0.95rem/1.25 "Space Grotesk", system-ui, sans-serif; letter-spacing: .02em;
+      display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: 2.5em; }
     .apax-vnav { position: absolute; z-index: 5; top: calc(14px + var(--thumbh, 150px) / 2 - 20px); width: 40px; height: 40px;
       border: 0; border-radius: 50%; background: #fff; color: #000; box-shadow: 0 4px 14px rgba(0,0,0,.25); cursor: pointer;
       font: 400 1.7rem/40px system-ui, sans-serif; text-align: center; padding: 0; transition: opacity .2s; }
@@ -240,6 +242,13 @@
       ['https://youtu.be/GZ53c3VInAE', 'Lixel L3'],
       ['https://youtu.be/aA2UoYir_Bw', 'Geo Spatial'],
       ['https://youtu.be/zU1Brp8oJh0', 'Summit 1.0'],
+      ['https://youtu.be/WgYGW69clls', 'AEC Maerfeisi Largest Scan Area with LCC'],
+      ['https://youtu.be/emw6b0XhszI', 'Digital Twins of Factory by Handheld Lidar Scanner'],
+      ['https://youtu.be/dIICwPfi9EI', 'Energy Steel Factory'],
+      ['https://youtu.be/2aHP_-eoOMg', 'AEC Overlay BIM CAD 3DGS'],
+      ['https://youtu.be/K8gngLB-UvU', 'Digital Twin XGRIDS by Nvidia'],
+      ['https://youtu.be/4KewNmcLC-s', 'Energy Power Plant 6min'],
+      ['https://youtu.be/039nya_S7wU', 'Energy Power Station'],
     ];
     /* =========================================================== */
 
@@ -257,7 +266,7 @@
           card.className = 'apax-vcard';
           card.innerHTML = '<div class="apax-vthumb"><button type="button" class="apax-video" data-yt="' + id + '" aria-label="Play video: ' + title + '">' +
             '<img src="https://i.ytimg.com/vi/' + id + '/hqdefault.jpg" alt="" loading="lazy"><span class="apax-video-play" aria-hidden="true"></span></button></div>' +
-            '<p class="apax-vtitle">' + title + '</p>';
+            '<p class="apax-vtitle" title="' + title + '">' + title + '</p>';
           track.appendChild(card);
         });
         var prev = box.querySelector('.prev'), next = box.querySelector('.next');
